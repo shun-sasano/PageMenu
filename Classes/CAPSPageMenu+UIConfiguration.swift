@@ -60,6 +60,8 @@ extension CAPSPageMenu {
                 configuration.centerMenuItems = value
             case let .hideTopMenuBar(value):
                 configuration.hideTopMenuBar = value
+            case let .selectionIndicatorPositionTop(value):
+                configuration.selectionIndicatorPositionTop = value
             }
         }
         
@@ -78,7 +80,7 @@ extension CAPSPageMenu {
         controllerScrollView.alwaysBounceHorizontal = configuration.enableHorizontalBounce
         controllerScrollView.bounces = configuration.enableHorizontalBounce
         
-        controllerScrollView.frame = CGRect(x: 0.0, y: configuration.menuHeight, width: self.view.frame.width, height: self.view.frame.height)
+        controllerScrollView.frame = CGRect(x: 0.0, y: configuration.menuHeight, width: self.view.frame.width, height: self.view.frame.height - configuration.menuHeight)
         
         self.view.addSubview(controllerScrollView)
         
@@ -186,7 +188,7 @@ extension CAPSPageMenu {
                 let controllerTitle : String? = controller.title
                 
                 let titleText : String = controllerTitle != nil ? controllerTitle! : "Menu \(Int(index) + 1)"
-                let itemWidthRect : CGRect = (titleText as NSString).boundingRect(with: CGSize(width: 1000, height: 1000), options: NSStringDrawingOptions.usesLineFragmentOrigin, attributes: [NSFontAttributeName:configuration.menuItemFont], context: nil)
+                let itemWidthRect : CGRect = (titleText as NSString).boundingRect(with: CGSize(width: 1000, height: 1000), options: NSStringDrawingOptions.usesLineFragmentOrigin, attributes: [kCTFontAttributeName as NSAttributedStringKey:configuration.menuItemFont], context: nil)
                 configuration.menuItemWidth = itemWidthRect.width
                 
                 menuItemFrame = CGRect(x: totalMenuItemWidthIfDifferentWidths + configuration.menuMargin + (configuration.menuMargin * index), y: 0.0, width: configuration.menuItemWidth, height: configuration.menuHeight)
@@ -237,10 +239,14 @@ extension CAPSPageMenu {
         } else if configuration.menuItemWidthBasedOnTitleTextWidth {
             selectionIndicatorFrame = CGRect(x: configuration.menuMargin, y: configuration.menuHeight - configuration.selectionIndicatorHeight, width: menuItemWidths[0], height: configuration.selectionIndicatorHeight)
         } else {
+            var selectionIndicatorY = configuration.menuHeight - configuration.selectionIndicatorHeight
+            if configuration.selectionIndicatorPositionTop {
+                selectionIndicatorY = 0
+            }
             if configuration.centerMenuItems  {
-                selectionIndicatorFrame = CGRect(x: startingMenuMargin + configuration.menuMargin, y: configuration.menuHeight - configuration.selectionIndicatorHeight, width: configuration.menuItemWidth, height: configuration.selectionIndicatorHeight)
+                selectionIndicatorFrame = CGRect(x: startingMenuMargin + configuration.menuMargin, y: selectionIndicatorY, width: configuration.menuItemWidth, height: configuration.selectionIndicatorHeight)
             } else {
-                selectionIndicatorFrame = CGRect(x: configuration.menuMargin, y: configuration.menuHeight - configuration.selectionIndicatorHeight, width: configuration.menuItemWidth, height: configuration.selectionIndicatorHeight)
+                selectionIndicatorFrame = CGRect(x: configuration.menuMargin, y: selectionIndicatorY, width: configuration.menuItemWidth, height: configuration.selectionIndicatorHeight)
             }
         }
         
